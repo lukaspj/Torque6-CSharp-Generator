@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace CSharpT6Helper
 {
@@ -31,9 +34,12 @@ namespace CSharpT6Helper
 
       private async void GenerateFromFolderButton_OnClick(object pSender, RoutedEventArgs pE)
       {
-         string[] bindingFiles = Directory.GetFiles("E:/GitHub/Torque6/engine/source", "*_Binding*.*", SearchOption.AllDirectories);
-         string[] headerFiles = Directory.GetFiles("E:/GitHub/Torque6/engine/source", "*.h", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
-         string[] cFiles = Directory.GetFiles("E:/GitHub/Torque6/engine/source", "*.c*", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
+         CommonOpenFileDialog dialog = new CommonOpenFileDialog {IsFolderPicker = true};
+         dialog.ShowDialog();
+         
+         string[] bindingFiles = Directory.GetFiles(dialog.FileName, "*_Binding*.*", SearchOption.AllDirectories);
+         string[] headerFiles = Directory.GetFiles(dialog.FileName, "*.h", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
+         string[] cFiles = Directory.GetFiles(dialog.FileName, "*.c*", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
          TSClassMetaData GeneratedClassMetaData = new TSClassMetaData
          {
             Classes = new List<EngineClass>(),
@@ -78,8 +84,11 @@ namespace CSharpT6Helper
 
       private async void MalpBindingButton_Click(object sender, RoutedEventArgs e)
       {
-         string[] bindingFiles = Directory.GetFiles("E:/GitHub/Torque6/engine/source", "*_Binding*.*", SearchOption.AllDirectories);
-         string[] cFiles = Directory.GetFiles("E:/GitHub/Torque6/engine/source", "*.c*", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
+         CommonOpenFileDialog dialog = new CommonOpenFileDialog {IsFolderPicker = true};
+         dialog.ShowDialog();
+
+         string[] bindingFiles = Directory.GetFiles(dialog.FileName, "*_Binding*.*", SearchOption.AllDirectories);
+         string[] cFiles = Directory.GetFiles(dialog.FileName, "*.c*", SearchOption.AllDirectories).Except(bindingFiles).ToArray();
          TSClassMetaData GeneratedClassMetaData = new TSClassMetaData
          {
             Classes = new List<EngineClass>(),

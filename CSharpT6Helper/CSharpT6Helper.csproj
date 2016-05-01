@@ -34,8 +34,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -53,8 +62,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="T6Field.cs" />
-    <Compile Include="TSClassMetaData.cs" />
+    <Compile Include="EngineParser\T6Field.cs" />
+    <Compile Include="EngineParser\TSClassMetaData.cs" />
     <Page Include="DisplayGenerated.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -67,12 +76,16 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CFunction.cs" />
-    <Compile Include="CSharpGenerator.cs" />
+    <Compile Include="EngineParser\CFunction.cs" />
+    <Compile Include="ManagedLibGenerator\ClassParser.cs" />
+    <Compile Include="ManagedLibGenerator\Templates\FunctionTemplate.cs" />
+    <Compile Include="ManagedLibGenerator\Templates\NativeFunctionTemplate.cs" />
+    <Compile Include="ManagedLibGenerator\Templates\ConstructorsTemplate.cs" />
+    <Compile Include="ManagedLibGenerator\CSharpGenerator.cs" />
     <Compile Include="DisplayGenerated.xaml.cs">
       <DependentUpon>DisplayGenerated.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EngineClass.cs" />
+    <Compile Include="EngineParser\EngineClass.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -80,6 +93,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ManagedLibGenerator\FunctionParser.cs" />
+    <Compile Include="ManagedLibGenerator\Templates\NamespaceTemplate.cs" />
+    <Compile Include="ManagedLibGenerator\Templates\SimObjectTemplate.cs" />
+    <Compile Include="ManagedLibGenerator\T6Class.cs" />
+    <Compile Include="ManagedLibGenerator\T6Function.cs" />
+    <Compile Include="ManagedLibGenerator\T6Getter.cs" />
+    <Compile Include="ManagedLibGenerator\T6OutParamGetter.cs" />
+    <Compile Include="ManagedLibGenerator\T6Parameter.cs" />
+    <Compile Include="ManagedLibGenerator\T6Property.cs" />
+    <Compile Include="ManagedLibGenerator\T6Setter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,6 +120,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

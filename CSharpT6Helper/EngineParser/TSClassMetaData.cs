@@ -192,7 +192,7 @@ namespace CSharpT6Helper
                      ":?\\s*,?\\s*public\\s+(?:virtual\\s+)?([a-zA-Z0-9:<>]+)");
                MatchCollection classMatches =
                   Regex.Matches(line,
-                     "class (?:[a-zA-Z 0-9:_]* )?([a-zA-Z0-9:]+)\\s*:");
+                     "class (?:(?:[a-zA-Z 0-9_]|::)* )?([a-zA-Z0-9]+)\\s*");
                if (classMatches.Count <= 0)
                   continue;
 
