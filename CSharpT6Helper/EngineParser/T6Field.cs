@@ -107,12 +107,19 @@ namespace CSharpT6Helper
             case "cinterface::point4fparam*":
                return new TypeData("Point4F", true);
             case "typeaudioassetptr":
+               return new TypeData("SimObjectPtr")
+               {
+                  DataName = "AudioAsset"
+               };
             case "typesimobjectptr":
-               return TypeData.SimObjectPtr;
+               return new TypeData("SimObjectPtr")
+               {
+                  DataName = "SimObject" //TODO make this more specific
+               };
             case "typeguiprofile":
                return new TypeData("SimObjectPtr")
                {
-                  DataName = "GuiProfile"
+                  DataName = "GuiControlProfile"
                };
             default:
                if (controlString.EndsWith("**"))

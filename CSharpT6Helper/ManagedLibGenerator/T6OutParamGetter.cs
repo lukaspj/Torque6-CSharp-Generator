@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace CSharpT6Helper
 {
    internal class T6OutParamGetter : T6Getter
@@ -8,6 +6,8 @@ namespace CSharpT6Helper
          CSharpGenerator.CSharpType pGetterType)
          : base(pPropGetterName, pPropReturnType, pGetterName, pGetterType)
       {
+         OutParamName = pPropGetterName;
+         OutParamType = pPropReturnType;
       }
 
       public T6OutParamGetter(string pPropGetterName, CSharpGenerator.CSharpType pPropReturnType, string pGetterName,
@@ -22,16 +22,21 @@ namespace CSharpT6Helper
       public CSharpGenerator.CSharpType OutParamType { get; set; }
       public string OutParamName { get; set; }
 
+      public T6Parameter OutParam => Parameters[HasIndex ? 2 : 1];
+
       public override string GetParamString()
       {
-         return base.GetParamString() + ", out " + OutParamType.NativeArgType + " " + OutParamName;
+         return base.GetParamString() + ", out " + OutParam.ParamType.NativeArgType + " " + OutParam.ParamName;
       }
 
-      public override T6Function ToT6Function()
+      public override string GetNativeParamString()
       {
-         T6Function function = base.ToT6Function();
-         function.Parameters[2].ParamName = function.Parameters[2].ParamName.Insert(2, " ");
-         return function;
+         return base.GetNativeParamString() + ", out " + OutParam.ParamType.NativeArgType + " " + OutParam.ParamName;
+      }
+
+      public override string GetNativeArgString()
+      {
+         return base.GetNativeArgString() + ", out " + OutParam.ParamName;
       }
    }
 }

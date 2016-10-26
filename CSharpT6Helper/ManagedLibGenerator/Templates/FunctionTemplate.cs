@@ -7,14 +7,8 @@ namespace CSharpT6Helper.ManagedLibGenerator.Templates
    {
       public static string GetMethodString(string internalName, T6Function t6Function)
       {
-         string paramString = t6Function.Parameters.Aggregate("",
-                  (x, y) => x + ", " + y.ParamType.NativeArgType + " " + y.ParamName);
-         if (paramString.Length > 0)
-            paramString = paramString.Substring(2);
-         string argString = t6Function.Parameters.Aggregate("",
-            (x, y) => x + ", " + y.ParamName);
-         if (argString.Length > 0)
-            argString = argString.Substring(2);
+         string paramString = t6Function.GetParamString();
+         string argString = t6Function.GetArgString();
 
 
          string returnString =

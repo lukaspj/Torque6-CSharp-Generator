@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -112,17 +113,16 @@ namespace CSharpT6Helper
          StringBuilder SB = new StringBuilder();
          foreach (T6Property t6Property in Properties)
          {
-
             string get = "";
             if (t6Property.Getter != null)
             {
-               get = NativeFunctionTemplate.GetFunctionString(t6Property.Getter.ToT6Function());
+               get = NativeFunctionTemplate.GetFunctionString(t6Property.Getter);
             }
             
             string set = "";
             if (t6Property.Setter != null)
             {
-               set = NativeFunctionTemplate.GetFunctionString(t6Property.Setter.ToT6Function());
+               set = NativeFunctionTemplate.GetFunctionString(t6Property.Setter);
             }
 
             SB.Append(get + set);
@@ -140,26 +140,38 @@ namespace CSharpT6Helper
          StringBuilder SB = new StringBuilder();
          foreach (T6Property t6Property in Properties)
          {
+            CSharpGenerator.CSharpType propType = t6Property.Getter?.GetterType ?? t6Property.Setter?.ValueParameter.ParamType;
+
+            if (t6Property.Out)
+            {
+               propType = (t6Property.Getter as T6OutParamGetter)?.OutParam.ParamType ?? t6Property.Setter?.ValueParameter.ParamType;
+            }
+
             if (t6Property.Count > 1)
             {
                string fieldVectorType = "";
-               if (t6Property.Type.ManagedType.Equals("string")
-                   || t6Property.Type.ManagedType.Equals("int")
+               string typeArg = $"<{t6Property.Type.ManagedType}>";
+               if (t6Property.Type.ManagedType.Equals("int")
                    || t6Property.Type.ManagedType.Equals("float")
                    || t6Property.Type.ManagedType.Equals("double")
                    || t6Property.Type.ManagedType.Equals("char"))
                   fieldVectorType = "Primitive";
+               if (t6Property.Type.ManagedType.Equals("string"))
+               {
+                  fieldVectorType = "String";
+                  typeArg = "";
+               }
                string append = String.Format(@"
-      public {5}FieldVector<{0}> {1}
+      public {5}FieldVector{0} {1}
       {{
          get
          {{
-            return new {5}FieldVector<{0}>(this, {2}, InternalUnsafeMethods.{3},
+            return new {5}FieldVector{0}(this, {2}, InternalUnsafeMethods.{3},
                InternalUnsafeMethods.{4});
          }}
       }}
-", t6Property.Type.ManagedType, t6Property.Name, t6Property.Count, t6Property.Getter.PropGetterName,
-                  t6Property.Setter.PropSetterName, fieldVectorType);
+", typeArg, t6Property.Name, t6Property.Count, t6Property.Getter.GetterName,
+                  t6Property.Setter.SetterName, fieldVectorType);
 
                SB.Append(append);
             }
@@ -167,7 +179,7 @@ namespace CSharpT6Helper
             {
                string append = String.Format(@"      public {1} {0}
       {{
-", t6Property.Name, t6Property.Type.ManagedType);
+", t6Property.Name, propType.ManagedType);
 
                string get = "";
                if (t6Property.Getter != null)
@@ -181,7 +193,7 @@ namespace CSharpT6Helper
             InternalUnsafeMethods.{0}(ObjectPtr->ObjPtr, out outVal);
             return outVal;
          }}
-", t6Property.Getter.PropGetterName, t6Property.Type.ManagedType);
+", t6Property.Getter.GetterName, propType.ManagedType);
                   }
                   else
                   {
@@ -191,8 +203,8 @@ namespace CSharpT6Helper
             return {0};
          }}
 ",
-                        t6Property.Type.GetReturn(String.Format("InternalUnsafeMethods.{0}(ObjectPtr->ObjPtr)",
-                           t6Property.Getter.PropGetterName)));
+                        propType.GetReturn(String.Format("InternalUnsafeMethods.{0}(ObjectPtr->ObjPtr)",
+                           t6Property.Getter.GetterName)));
                   }
                }
 
@@ -202,7 +214,7 @@ namespace CSharpT6Helper
          {{
             if (IsDead()) throw new Exceptions.SimObjectPointerInvalidException();
             InternalUnsafeMethods.{0}(ObjectPtr->ObjPtr, {1});
-         }}", t6Property.Setter.PropSetterName, t6Property.Type.GetArg("value"));
+         }}", t6Property.Setter.SetterName, propType.GetArg("value"));
 
                append += get;
                append += set;

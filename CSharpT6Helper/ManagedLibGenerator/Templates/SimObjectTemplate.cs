@@ -27,6 +27,7 @@ using System.Runtime.InteropServices;
 using Torque6.Engine.SimObjects;
 using Torque6.Engine.SimObjects.Scene;
 using Torque6.Engine.Namespaces;
+using Torque6.Interop;
 using Torque6.Utility;
 
 namespace {ns}

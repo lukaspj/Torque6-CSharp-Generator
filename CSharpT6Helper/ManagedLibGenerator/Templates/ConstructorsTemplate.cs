@@ -10,6 +10,14 @@
                $@"public {name}()
       {{
          ObjectPtr = Sim.WrapObject(InternalUnsafeMethods.{name}CreateInstance());
+         ManagedSimTable.RegisterObject(this);
+      }}
+
+      public {name}(bool create = true)
+      {{
+         if(!create) return;
+         ObjectPtr = Sim.WrapObject(InternalUnsafeMethods.{name}CreateInstance());
+         ManagedSimTable.RegisterObject(this);
       }}
 
       public {name}(uint pId)
@@ -39,10 +47,19 @@
          }
 
          return
-            $@"
-      public {name}()
+            $@"public {name}()
+         : base(false)
       {{
          ObjectPtr = Sim.WrapObject(InternalUnsafeMethods.{name}CreateInstance());
+         ManagedSimTable.RegisterObject(this);
+      }}
+
+      public {name}(bool create)
+         : base(false)
+      {{
+         if(!create) return;
+         ObjectPtr = Sim.WrapObject(InternalUnsafeMethods.{name}CreateInstance());
+         ManagedSimTable.RegisterObject(this);
       }}
 
       public {name}(uint pId) : base(pId)

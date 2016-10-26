@@ -108,9 +108,32 @@ namespace CSharpT6Helper
       {
          List<T6Field> fields = new List<T6Field>();
          StreamReader SR = new StreamReader(pCcFile);
+         bool inComment = false;
          while (!SR.EndOfStream)
          {
             string line = SR.ReadLine().Trim();
+            if (inComment)
+            {
+               line = "/*" + line; //hack
+            }
+            if (line.IndexOf("//", StringComparison.Ordinal) >= 0)
+               line = line.Remove(line.IndexOf("//", StringComparison.Ordinal));
+            while (line.IndexOf("/*", StringComparison.Ordinal) >= 0)
+            {
+               int commentStartIdx = line.IndexOf("/*", StringComparison.Ordinal);
+               if (line.IndexOf("*/", StringComparison.Ordinal) >= 0)
+               {
+                  int commentEndIdx = line.IndexOf("*/", StringComparison.Ordinal);
+                  line = line.Remove(commentStartIdx, commentEndIdx - commentStartIdx + 2);
+                  inComment = false;
+               }
+               else
+               {
+                  line = line.Remove(commentStartIdx);
+                  inComment = true;
+                  continue;
+               }
+            }
             if (line.Contains("::initPersistFields()")
                 && !line.Contains("Parent::initPersistFields()"))
             {
@@ -133,7 +156,7 @@ namespace CSharpT6Helper
                   {
                      MatchCollection matches =
                         Regex.Matches(line,
-                           "Field\\(\\s*\"?([a-zA-Z0-9:_]+)\"?[\\s,]+([a-zA-Z0-9:_]+)[\\s,]+Offset\\([^\\(\\)]*\\)[\\s,]*([0-9]+)?");
+                           "Field\\(\\s*\"?([a-zA-Z0-9:_]+)\"?[\\s,]+([a-zA-Z0-9:_]+)[\\s,]+(?:Offset\\([^\\)]*\\)|0)[\\s,]*([0-9]+)?");
                      if (matches.Count <= 0)
                         continue;
                      match = matches[0];
@@ -458,10 +481,12 @@ namespace CSharpT6Helper
             writer.WriteStartElement("Params");
             foreach (CFunction.Param functionParam in cFunction.FunctionParams)
             {
+               string defaultValue = DefaultValues.GetDefaultValue(cFunction.FunctionName, functionParam.Name);
                writer.WriteStartElement("Param");
                writer.WriteAttributeString("Name", functionParam.Name);
                writer.WriteAttributeString("Type", functionParam.ParamTypeInfo.ToString());
                writer.WriteAttributeString("Out", functionParam.ParamTypeInfo.Out.ToString());
+               writer.WriteAttributeString("DefaultValue", defaultValue ?? "N/A");
                writer.WriteEndElement();
             }
             writer.WriteEndElement();

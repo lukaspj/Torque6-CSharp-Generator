@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace CSharpT6Helper.ManagedLibGenerator.Templates
 {
@@ -18,24 +16,46 @@ namespace CSharpT6Helper.ManagedLibGenerator.Templates
 
       public static string GetFunctionString(T6Function t6Function, string internalName)
       {
-         return GetFunctionString(t6Function.Parameters,
+         T6OutParamGetter getter = t6Function as T6OutParamGetter;
+         if (getter != null)
+         {
+            return GetOutFunctionString(t6Function.GetNativeParamString(), t6Function.GetNativeArgString(),
+               internalName,
+               getter.OutParam.ParamType.NativeArgType);
+         }
+         return GetFunctionString(t6Function.GetNativeParamString(), t6Function.GetNativeArgString(),
             t6Function.ReturnType.NativeReturnType,
             internalName);
       }
 
-      public static string GetFunctionString(List<T6Parameter> parameters, 
-         string nativeReturnType, 
+      private static string GetOutFunctionString(string paramString, string argString,
+         string internalName,
+         string managedReturnType)
+      {
+         string retString = "_" + internalName + "Func";
+
+         return String.Format(@"
+
+         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+         private delegate void _{0}({1});
+         private static _{0} _{0}Func;
+         internal static void {0}({1})
+         {{
+            if (_{0}Func == null)
+            {{
+               _{0}Func =
+                  (_{0})Marshal.GetDelegateForFunctionPointer(Interop.Torque6.DllLoadUtils.GetProcAddress(Interop.Torque6.Torque6LibHandle,
+                     ""{0}""), typeof(_{0}));
+            }}
+            {3}({2});
+         }}", internalName, paramString, argString, retString, managedReturnType);
+      }
+
+      public static string GetFunctionString(string paramString, string argString,
+         string nativeReturnType,
          string internalName)
       {
-         string paramString = parameters.Aggregate("",
-                  (x, y) => x + ", " + y.ParamType.NativeArgType + " " + y.ParamName);
-         if (paramString.Length > 0)
-            paramString = paramString.Substring(2);
-         string argString = parameters.Aggregate("",
-            (x, y) => x + ", " + y.ParamName);
-         if (argString.Length > 0)
-            argString = argString.Substring(2);
-         
+
          string retString = "_" + internalName + "Func";
          if (nativeReturnType != "void")
             retString = "return " + retString;

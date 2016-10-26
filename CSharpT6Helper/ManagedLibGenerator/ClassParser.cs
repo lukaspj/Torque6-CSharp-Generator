@@ -75,7 +75,13 @@ namespace CSharpT6Helper
                      {
                         string propGetterName = pReader["Name"];
                         CSharpGenerator.CSharpType propGetterType = CSharpGenerator.CSharpType.ToCSharpType(pReader["ReturnType"]);
-                        property.Getter = new T6Getter(propGetterName, propGetterType, null, null);
+                        property.Getter = new T6Getter(PropertyName, property.Type, propGetterName, propGetterType);
+                        if (property.Out)
+                        {
+                           property.Getter = new T6OutParamGetter(PropertyName, property.Type, propGetterName, propGetterType);
+                        }
+                        if (property.Count > 1)
+                           property.Getter.HasIndex = true;
                         pReader.Read();
                         pReader.Read();
 
@@ -99,10 +105,12 @@ namespace CSharpT6Helper
                      {
                         string propSetterName = pReader["Name"];
                         CSharpGenerator.CSharpType propSetterType = CSharpGenerator.CSharpType.ToCSharpType(pReader["ReturnType"]);
-                        property.Setter = new T6Setter(propSetterName, propSetterType, null, null, null, null);
+                        property.Setter = new T6Setter(PropertyName, property.Type, propSetterName, propSetterType);
                         pReader.Read();
                         pReader.Read();
 
+                        if (property.Count > 1)
+                           property.Setter.HasIndex = true;
                         while (pReader.Read())
                         {
                            if (!pReader.IsStartElement() && pReader.Name == "Setter.Params")
